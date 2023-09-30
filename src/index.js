@@ -66,10 +66,6 @@ async function searchGallery() {
 
     // Визначаємо максимальну кількість фотографій, яку хочемо відобразити
     const maxPhotosPerPage = 40; // Наприклад, встановіть 40 як максимум
-
-    console.log(data.totalHits)
-    console.log(maxPhotosPerPage)
-
     if (data.totalHits > maxPhotosPerPage) {
       // Показуємо кнопку "Завантажити ще", якщо є більше результатів
       loadMoreBtnEl.classList.remove('is-hidden');
