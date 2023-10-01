@@ -8,9 +8,8 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 // Вибираємо DOM-елементи
-const formSearchEl = document.querySelector('.search-form');
-const galleryEl = document.querySelector('.gallery');
-const loadMoreBtnEl = document.querySelector('.load-more');
+const formSearch = document.querySelector('.search-form');
+const infiniteScrollContainer = document.querySelector('.scroll-container');
 
 // Створюємо екземпляр класу для взаємодії з Pixabay API
 const pixabayApi = new PixabayAPI();
@@ -21,16 +20,15 @@ let gallery = new SimpleLightbox('.gallery a');
 // Функція для обробки подання форми пошуку фотографій
 const handleSearchFoto = async ev => {
   ev.preventDefault();
-  galleryEl.innerHTML = '';
-  loadMoreBtnEl.classList.add('is-hidden');
+  infiniteScrollContainer.innerHTML = '';
   pixabayApi.page = 1;
 
   // Отримуємо пошуковий запит від користувача
-  const searchItemEl = ev.target.elements['searchQuery'].value.trim();
+  const searchItem = ev.target.elements['searchQuery'].value.trim();
 
-  pixabayApi.q = searchItemEl;
+  pixabayApi.q = searchItem;
 
-  if (!searchItemEl) {
+  if (!searchItem) {
     // Виводимо сповіщення про помилку, якщо пошуковий запит порожній
     Notiflix.Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
@@ -57,7 +55,7 @@ async function searchGallery() {
     }
     
     // Генеруємо і вставляємо HTML-код для карток зображень
-    galleryEl.innerHTML = createPhotoCard(data.hits);
+    infiniteScrollContainer.innerHTML = createPhotoCard(data.hits);
 
     // Виводимо сповіщення про успішний пошук та кількість знайдених зображень
     Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
@@ -66,20 +64,29 @@ async function searchGallery() {
     gallery.refresh();
 
     // Визначаємо максимальну кількість фотографій, яку хочемо відобразити
-    const maxPhotosPerPage = 40; // Наприклад, встановіть 40 як максимум
+    const maxPhotosPerPage = 40;
     if (data.totalHits > maxPhotosPerPage) {
       // Показуємо кнопку "Завантажити ще", якщо є більше результатів
-      loadMoreBtnEl.classList.remove('is-hidden');
+      loadMoreImages(); // Викликаємо функцію завантаження при першому завантаженні
+      window.addEventListener('scroll', loadMoreImages); // Додаємо обробник прокручування
     }
   } catch (error) {
     console.log(error);
   }
 }
 
-// Функція для обробки кліку на кнопці "Завантажити ще"
-function handleLoadMoreBtnClick() {
-  pixabayApi.page += 1;
-  searchMorePhoto();
+// Функція для завантаження додаткових фотографій при прокручуванні
+function loadMoreImages() {
+  const containerHeight = infiniteScrollContainer.offsetHeight;
+  const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+  const windowHeight = window.innerHeight;
+
+  // Перевірка, чи користувач дійшов до кінця сторінки
+  if (containerHeight - (scrollTop + windowHeight) < 200) {
+    // Виконуємо пошук додаткових фотографій
+    pixabayApi.page += 1;
+    searchMorePhoto();
+  }
 }
 
 // Асинхронна функція для завантаження додаткових фотографій
@@ -89,14 +96,14 @@ async function searchMorePhoto() {
     const { data } = await pixabayApi.fetchPhoto();
 
     // Додаємо нові картки зображень до існуючих
-    galleryEl.insertAdjacentHTML('beforeend', createPhotoCard(data.hits));
+    infiniteScrollContainer.insertAdjacentHTML('beforeend', createPhotoCard(data.hits));
     
     // Оновлюємо галерею
     gallery.refresh();
 
     if (data.hits.length < pixabayApi.per_page) {
-      // Приховуємо кнопку "Завантажити ще" і виводимо інформаційне сповіщення, якщо результатів більше немає
-      loadMoreBtnEl.classList.add('is-hidden');
+      // Відключаємо обробник прокручування і приховуємо кнопку "Завантажити ще", якщо результатів більше немає
+      window.removeEventListener('scroll', loadMoreImages);
       Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
     }
   } catch (error) {
@@ -106,6 +113,4 @@ async function searchMorePhoto() {
 
 // Додаємо обробники подій:
 // - Відправка форми запускає функцію обробки пошуку фотографій
-formSearchEl.addEventListener('submit', handleSearchFoto);
-// - Клік на кнопці "Завантажити ще" запускає функцію обробки завантаження додаткових фотографій
-loadMoreBtnEl.addEventListener('click', handleLoadMoreBtnClick);
+formSearch.addEventListener('submit', handleSearchFoto);
