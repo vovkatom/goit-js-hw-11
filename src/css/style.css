@@ -23,10 +23,6 @@ body {
   color: #212121;
 }
 
-.cls-search {
-  width: 300px;
-}
-
 #search-form {
   display: flex;
   justify-content: center;
