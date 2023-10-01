@@ -1,8 +1,7 @@
 // Імпортуємо необхідні стилі та залежності
-import './css/style.css';
-// import { PixabayAPI } from './js/pixabay-api';
-import { PixabayAPI } from './js/api';
-import createPhotoCard from './templates/card-template.hbs';
+import '../css/style.css';
+import { PixabayAPI } from '../js/api';
+import createPhotoCard from '../templates/card-template.hbs';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
