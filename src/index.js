@@ -1,6 +1,7 @@
 // Імпортуємо необхідні стилі та залежності
 import './css/style.css';
-import { PixabayAPI } from './js/pixabay-api';
+// import { PixabayAPI } from './js/pixabay-api';
+import { PixabayAPI } from './js/api';
 import createPhotoCard from './templates/card-template.hbs';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
@@ -96,7 +97,7 @@ async function searchMorePhoto() {
     if (data.hits.length < pixabayApi.per_page) {
       // Приховуємо кнопку "Завантажити ще" і виводимо інформаційне сповіщення, якщо результатів більше немає
       loadMoreBtnEl.classList.add('is-hidden');
-      Notiflix.Notify.info("Вибачте, ви досягли кінця результатів пошуку.");
+      Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
     }
   } catch (error) {
     console.log(error);
