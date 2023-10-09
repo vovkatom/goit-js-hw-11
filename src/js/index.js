@@ -16,6 +16,9 @@ const pixabayApi = new PixabayAPI();
 // Ініціалізуємо SimpleLightbox для перегляду зображень
 let gallery = new SimpleLightbox('.gallery a');
 
+// Ініціалізуємо змінну для відстеження статусу запиту
+let isLoading = false;
+
 // Функція для обробки подання форми пошуку фотографій
 const handleSearchFoto = async ev => {
   ev.preventDefault();
@@ -76,15 +79,22 @@ async function searchGallery() {
 
 // Функція для завантаження додаткових фотографій при прокручуванні
 function loadMoreImages() {
+  if (isLoading) {
+    // Якщо вже виконується запит, не робити новий
+    return;
+  }
+
   const containerHeight = infiniteScrollContainer.offsetHeight;
   const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
   const windowHeight = window.innerHeight;
 
   // Перевірка, чи користувач дійшов до кінця сторінки
   if (containerHeight - (scrollTop + windowHeight) < 200) {
-    // Виконуємо пошук додаткових фотографій
+    isLoading = true; // Позначити, що почався новий запит
     pixabayApi.page += 1;
-    searchMorePhoto();
+    searchMorePhoto().then(() => {
+      isLoading = false; // Позначити, що запит завершено
+    });
   }
 }
 
@@ -107,6 +117,8 @@ async function searchMorePhoto() {
     }
   } catch (error) {
     console.log(error);
+  } finally {
+    isLoading = false; // Позначити, що завершено запит (навіть якщо сталася помилка)
   }
 }
 
