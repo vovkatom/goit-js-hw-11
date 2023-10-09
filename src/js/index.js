@@ -18,12 +18,14 @@ let gallery = new SimpleLightbox('.gallery a');
 
 // Ініціалізуємо змінну для відстеження статусу запиту
 let isLoading = false;
+let hasError = false; // змінна для відстеження наявності помилки
 
 // Функція для обробки подання форми пошуку фотографій
 const handleSearchFoto = async ev => {
   ev.preventDefault();
   infiniteScrollContainer.innerHTML = '';
   pixabayApi.page = 1;
+  hasError = false; // При новому пошуку скидаємо прапор помилки
 
   // Отримуємо пошуковий запит від користувача
   const searchItem = ev.target.elements['searchQuery'].value.trim();
@@ -74,13 +76,14 @@ async function searchGallery() {
     }
   } catch (error) {
     console.log(error);
+    hasError = true; // Встановлюємо значення hasError на true у випадку помилки
   }
 }
 
 // Функція для завантаження додаткових фотографій при прокручуванні
 function loadMoreImages() {
-  if (isLoading) {
-    // Якщо вже виконується запит, не робити новий
+  if (isLoading || hasError) {
+    // Якщо вже виконується запит або є помилка, не робити новий запит
     return;
   }
 
@@ -117,6 +120,7 @@ async function searchMorePhoto() {
     }
   } catch (error) {
     console.log(error);
+    hasError = true; // Встановлюємо значення hasError на true у випадку помилки
   } finally {
     isLoading = false; // Позначити, що завершено запит (навіть якщо сталася помилка)
   }
