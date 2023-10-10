@@ -82,6 +82,13 @@ async function searchGallery() {
 
 // Функція для завантаження додаткових фотографій при прокручуванні
 function loadMoreImages() {
+
+  if (isLoading && !hasError) {
+    Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+    // Якщо вже виконується запит або є помилка, не робити новий запит
+    return;
+  }
+
   if (isLoading || hasError) {
     // Якщо вже виконується запит або є помилка, не робити новий запит
     return;
@@ -121,6 +128,7 @@ async function searchMorePhoto() {
   } catch (error) {
     console.log(error);
     hasError = true; // Встановлюємо значення hasError на true у випадку помилки
+    // Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
   } finally {
     isLoading = false; // Позначити, що завершено запит (навіть якщо сталася помилка)
   }
